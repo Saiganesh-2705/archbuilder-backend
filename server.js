@@ -19,8 +19,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const allowedOrigins = (process.env.CLIENT_URL || "")
-  .split(",").map((s) => s.trim()).filter(Boolean);
-app.use(cors({ origin: allowedOrigins.length ? allowedOrigins : "*", credentials: true }));
+  .split(",")
+  .map((s) => s.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      const ok =
+        allowedOrigins.includes(origin) ||
+        new URL(origin).hostname.endsWith(".vercel.app");
+      cb(null, ok);
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
