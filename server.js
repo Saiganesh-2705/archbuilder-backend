@@ -18,7 +18,9 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(cors({ origin: process.env.CLIENT_URL || "*", credentials: true }));
+const allowedOrigins = (process.env.CLIENT_URL || "")
+  .split(",").map((s) => s.trim()).filter(Boolean);
+app.use(cors({ origin: allowedOrigins.length ? allowedOrigins : "*", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
